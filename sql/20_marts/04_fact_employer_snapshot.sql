@@ -28,6 +28,13 @@ CREATE TABLE marts.fact_employer_snapshot (
     route          text    NOT NULL,
     snapshot_date  date    NOT NULL,
     source_file    text    NOT NULL,
+    -- How many published rows collapsed into this one. Greater than 1 means
+    -- the register repeated the row; 772 such groups exist.
+    source_row_count integer NOT NULL DEFAULT 1,
+    -- True when those repeated rows disagreed about the rating. Recorded
+    -- rather than resolved: there is no way to tell which is current, and
+    -- quietly choosing one would hide a contradiction in the source.
+    has_rating_conflict boolean NOT NULL DEFAULT false,
 
     -- The grain, enforced rather than described. If a future snapshot breaks
     -- this assumption the load fails loudly instead of double-counting.
@@ -36,28 +43,34 @@ CREATE TABLE marts.fact_employer_snapshot (
 
 INSERT INTO marts.fact_employer_snapshot (
     employer_key, location_key, company_key,
-    employer_type, rating, route, snapshot_date, source_file
+    employer_type, rating, route, snapshot_date, source_file,
+    source_row_count, has_rating_conflict
 )
-SELECT DISTINCT
+SELECT
     e.employer_key,
     l.location_key,
     c.company_key,
-    s.employer_type,
-    s.rating,
+    min(s.employer_type),
+    min(s.rating),
     s.route,
     -- The filename ends in the publication date, e.g.
     -- "..._Web_Register_-_2026-10-15.csv".
     to_date(substring(s.source_file from '(\d{4}-\d{2}-\d{2})'), 'YYYY-MM-DD'),
-    s.source_file
+    s.source_file,
+    count(*),
+    count(DISTINCT s.rating) > 1
 FROM staging.stg_licensed_employers s
 JOIN marts.dim_employer e
   ON e.organisation_name_normalised = s.organisation_name_normalised
 -- The unknown location member catches the single row with no town, so this
 -- stays an inner join and location_key can be NOT NULL.
+-- Joined on the case-folded keys, not the published spelling, so the four
+-- spellings of London resolve to one location.
 JOIN marts.dim_location l
-  ON (l.town IS NOT DISTINCT FROM s.town AND l.county IS NOT DISTINCT FROM s.county
+  ON (l.town_key IS NOT DISTINCT FROM s.town_key
+      AND l.county_key IS NOT DISTINCT FROM s.county_key
       AND NOT l.is_unknown)
-  OR (s.town IS NULL AND l.is_unknown)
+  OR (s.town_key IS NULL AND l.is_unknown)
 -- LEFT JOIN: most employers have no matched company, and a fact row must
 -- survive that. company_key NULL means "not linked to Companies House", which
 -- is a real and common state, not an error.
@@ -65,7 +78,8 @@ LEFT JOIN marts.employer_company_match m
   ON m.organisation_name_normalised = s.organisation_name_normalised
  AND m.company_number IS NOT NULL
 LEFT JOIN marts.dim_company c
-  ON c.company_number = m.company_number;
+  ON c.company_number = m.company_number
+GROUP BY e.employer_key, l.location_key, c.company_key, s.route, s.source_file;
 
 CREATE INDEX ix_fact_employer  ON marts.fact_employer_snapshot (employer_key);
 CREATE INDEX ix_fact_location  ON marts.fact_employer_snapshot (location_key);
