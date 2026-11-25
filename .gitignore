@@ -1,0 +1,24 @@
+# Secrets: only .env.example is committed
+.env
+
+# Raw downloaded data is never committed (hundreds of MB, and the
+# publishers are the authoritative source - see data/README.md)
+# (data/raw/* rather than data/raw/ - git cannot re-include a file whose
+# parent directory is itself excluded, so the .gitkeep would vanish)
+data/raw/*
+!data/raw/.gitkeep
+
+# Local teaching notes
+notes/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Editors and OS
+.vscode/
+.idea/
+Thumbs.db
+desktop.ini
