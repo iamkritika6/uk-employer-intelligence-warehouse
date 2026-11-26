@@ -372,7 +372,7 @@ non-zero:
 |---|---|
 | Companies with no SIC code (published as the text `None Supplied`) | 231,826 |
 | Employer names with no company match | 23,940 |
-| Fuzzy matches (≥ 21% expected wrong) | 3,311 |
+| Fuzzy matches (a small sample suggests ≥ 21% are wrong) | 3,311 |
 | Fact rows collapsed from duplicate published rows | 854 |
 | Fact rows with contradictory published ratings | 1 |
 
@@ -412,7 +412,7 @@ the fuzzy pass runs 27,251 times.
 Roughly **90× faster**. Index build 23 s, size 204 MB.
 
 This index is not a refinement — without it the pass would take approximately
-**37 hours** instead of 19 minutes.
+**37 hours** instead of the 20 minutes it actually takes.
 
 ### Experiment 2 — B-tree index on `company_status`, and a wrong prediction
 

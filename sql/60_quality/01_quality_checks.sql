@@ -160,9 +160,10 @@ UNION ALL
 SELECT 'INFO: employer names with no Companies House match',
        '', (SELECT count(*) FROM marts.employer_company_match WHERE match_method = 'none')::text, 'INFO'
 UNION ALL
-SELECT 'INFO: employer names matched fuzzily (>=21% expected wrong)',
+SELECT 'INFO: employer names matched fuzzily (small sample suggests >=21% wrong)',
        '', (SELECT count(*) FROM marts.employer_company_match WHERE match_method = 'fuzzy')::text, 'INFO'
 UNION ALL
 SELECT 'INFO: companies with no SIC code (published as None Supplied)',
        '', (SELECT count(*) FROM staging.stg_companies WHERE sic_code_1 IS NULL)::text, 'INFO'
 ORDER BY status, check_name;
+
