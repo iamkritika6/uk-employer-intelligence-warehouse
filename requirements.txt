@@ -1,14 +1,12 @@
-# No third-party Python packages are required.
+# The pipeline itself needs no third-party packages.
 #
 # scripts/run_pipeline.py uses only the standard library (argparse, pathlib,
 # re, subprocess, time) and talks to PostgreSQL by invoking psql inside the
-# Docker container, which the project already depends on.
+# Docker container, which the project already depends on. A database driver
+# such as psycopg would add an install step for behaviour it does not need:
+# the SQL files do the work, and the script only sequences them.
 #
-# A database driver such as psycopg would be a reasonable alternative, but it
-# would add an install step for behaviour this pipeline does not need: the SQL
-# files do the work, and the script only sequences them and reports timings.
-# This file is kept, empty of dependencies, so that the absence is explicit
-# rather than looking like an oversight.
+# One package is required, and only for generating the README figures:
+matplotlib==3.11.2
 #
-# Verified on Python 3.15.2 (the version installed on the machine this was
-# built and run on).
+# Verified on Python 3.15.2, the version this was built and run on.

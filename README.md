@@ -106,6 +106,13 @@ figure diagnosable instead of mysterious.
 - Plain `.sql` files for every transformation
 - Python 3.15.2 for orchestration only — standard library, no third-party packages
 - `pg_trgm` for fuzzy name matching
+- matplotlib, used by one script to regenerate the figures below
+
+Every figure in this README is produced by
+[`scripts/make_figures.py`](scripts/make_figures.py) from the warehouse itself.
+A chart nobody can regenerate is an assertion, the same as a number nobody can
+regenerate. That script also documents what was deliberately **not** plotted
+and why.
 
 ---
 
@@ -195,6 +202,13 @@ Geography is extraordinarily concentrated.
 
 London alone holds **28.59%** of all registered employers.
 
+![Registered employers by town](docs/figures/employers_by_town.png)
+
+The table gives the top five; the chart shows why the ranking beyond them barely
+matters. London's bar is twelve times Birmingham's, and everything below third
+place is within a few hundred of its neighbours — the distribution has one
+outlier and a long flat tail, which no row of percentages makes obvious.
+
 ### 2. Where are technology-sector employers located?
 
 "Technology" means SIC divisions 26, 61, 62, 63 and group 582. The definition
@@ -212,6 +226,14 @@ reason for each:
 
 London leads on volume, but **Reading has more than double London's
 concentration**: 28.7% of its registered employers are technology companies.
+
+![Technology share by town](docs/figures/technology_share.png)
+
+Ranked by share rather than count, and limited to towns with at least 300
+registered employers so a town with four firms cannot top the chart. Reading
+stands clear of a tightly packed field — second place, Cambridge, is 11.5
+percentage points behind. **Based on exactly matched employers only**, so the
+denominator is employers that could be classified, not all employers.
 
 ### 3. Ranking within London, Berkshire and Reading
 
@@ -251,6 +273,13 @@ B ratings are vanishingly rare: **98 of 142,356 licences**.
 The top tenth of towns holds **88.39%** of employers. The bottom six deciles
 have exactly one employer each.
 
+![Cumulative share of employers by town rank](docs/figures/concentration.png)
+
+The curve is almost vertical at the left: it passes 80% before the 400th town
+of 6,808. The decile table rounds that shape into ten buckets and loses it —
+the chart shows the register is not merely skewed but close to degenerate
+beyond the first few hundred places.
+
 ### 6. How old are the companies behind these employers?
 
 | Age band | Employers | % | Cumulative |
@@ -265,6 +294,12 @@ have exactly one employer each.
 Nearly half are under ten years old.
 
 ### 7. Incorporations by year
+
+![Incorporation years of companies on the register](docs/figures/incorporations_by_year.png)
+
+The last three years are shaded **on the chart itself**, not only in this
+caption, because a chart gets screenshotted away from its caption and the tail
+would otherwise read as a collapse.
 
 Peak year 2020 (6,484). **The sharp fall after 2023 is not a decline** — it is
 an artefact. This shows incorporation years of companies on the register
@@ -310,6 +345,14 @@ legal suffixes (Ltd, Limited, PLC, LLP…) stripped — then matched in two pass
 | No match | 23,940 | 18.86% |
 
 **80.66% matched overall.**
+
+![Match outcome for all 126,963 employer names](docs/figures/match_outcome.png)
+
+This figure is here to stop the rest of this page being read as full coverage.
+The grey fifth of the bar is every employer that has no company attributes at
+all, and the thin orange slice is the matches that are known to be partly
+wrong. Any figure in this README derived from company data describes the blue
+section only.
 
 **Ambiguous names are deliberately left unmatched.** 613 names are shared by two
 to five different companies. Picking the first would have raised the rate to
@@ -480,6 +523,8 @@ docker-compose.yml          PostgreSQL 16, named volume, data/raw mounted read-o
 .env.example                committed template; .env is gitignored
 requirements.txt            no third-party packages, and why
 scripts/run_pipeline.py     runs everything in order
+scripts/make_figures.py     regenerates the README figures from the warehouse
+docs/figures/               the five figures, committed so the README renders
 sql/00_raw/                 schemas, extension, raw tables (text only)
 sql/10_staging/             typed, cleaned, name normalisation
 sql/20_marts/               star schema with keys and constraints

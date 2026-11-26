@@ -55,6 +55,15 @@ LAYERS = [
     # and this list is the authority on order.
     ("matching", "30_matching", None),
     ("marts", "20_marts", None),
+    # The sector definition is a table and a view that the analysis queries
+    # and the figures depend on. It lives in 50_analysis because that is what
+    # it belongs to, but it has to be CREATED by the pipeline: the view reads
+    # dim_company, so the CASCADE when marts rebuilds that table drops the
+    # view with it. Leaving it out meant a full rebuild silently removed it,
+    # and the next thing to use it failed with "relation does not exist".
+    # Only the definition file runs here; the queries themselves are run by
+    # hand, since their output is for reading, not for loading.
+    ("analysis-defs", "50_analysis", ["00_technology_sic_definition.sql"]),
     ("snapshots", "40_snapshots", None),
     ("quality", "60_quality", None),
 ]
