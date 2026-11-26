@@ -1,4 +1,4 @@
--- QUESTION: How are sponsorship ratings distributed across employer types,
+-- QUESTION: How are employer ratings distributed across employer types,
 --           and are B ratings concentrated anywhere?
 --
 -- Technique: conditional aggregation (COUNT with FILTER) to turn rows into

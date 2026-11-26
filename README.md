@@ -322,12 +322,24 @@ appear in Companies House at all.
 ### How wrong is the fuzzy matching?
 
 A sample of 24 fuzzy matches was read side by side and judged by inspection:
-**12 correct, 5 wrong, 7 uncertain**. So **at least 21% of fuzzy matches are
-wrong**, possibly up to 50% — roughly 700 to 1,650 incorrect links. Full sample
-with verdicts: [`docs/match_sample_check.md`](docs/match_sample_check.md).
+**12 correct, 5 wrong, 7 uncertain**. Full sample with verdicts:
+[`docs/match_sample_check.md`](docs/match_sample_check.md).
 
-This is a judgement by eye, not verified ground truth. No authoritative list
-exists saying which register entry belongs to which company.
+**This estimate is rough, and the sample is small.** 24 matches out of 3,311 is
+well under 1% of them, so the figures below indicate an order of magnitude and
+nothing finer — a different sample would give different percentages. Nor is it
+verified ground truth: no authoritative list exists saying which register entry
+belongs to which company, so the verdicts are a careful reader's judgement from
+the two names alone. "Uncertain" means exactly that.
+
+On that basis, **at least 21% of fuzzy matches appear to be wrong**, and the
+figure could be as high as 50% if every uncertain case is also wrong — very
+roughly 700 to 1,650 incorrect links out of 3,311. Treat those as indicative
+bounds, not measurements.
+
+A larger stratified sample, or a check against a third source such as the
+Companies House API, would be needed to turn this into a real error rate. That
+is recorded as future work, not done.
 
 **A similarity score of 1.000 does not mean the match is correct.** Of the 208
 fuzzy matches scoring a perfect 1.000, **166 are the same words in a different
@@ -429,7 +441,8 @@ rows): **0.062 ms**.
 **The register lists organisations, not vacancies.** A row means an organisation
 holds a licence, not that it is hiring. Nothing here measures demand for labour.
 
-**Fuzzy matching is unreliable.** At least 21% of the 3,311 fuzzy matches are
+**Fuzzy matching is unreliable.** On a small hand-checked sample of 24, at
+least 21% of the 3,311 fuzzy matches appear to be
 wrong. A perfect similarity score is not evidence of correctness, because
 trigram similarity is nearly blind to word order.
 
