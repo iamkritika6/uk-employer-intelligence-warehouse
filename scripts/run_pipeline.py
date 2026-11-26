@@ -204,8 +204,19 @@ def main() -> int:
                 continue
             step_started = time.time()
             try:
-                psql(env, sql_file=path)
+                output = psql(env, sql_file=path)
                 print(f"  ok   {path.name:<42} {time.time() - step_started:6.1f}s")
+                # The quality layer's whole purpose is its output. The first
+                # version of this script ran the checks, printed "ok", and
+                # threw the PASS/FAIL table away - a pipeline that silently
+                # discards the evidence it was built to produce.
+                if label == "quality":
+                    print()
+                    print(output.rstrip())
+                    print()
+                    if " FAIL" in output:
+                        failures += 1
+                        print("  ^^ at least one check FAILED")
             except RuntimeError as error:
                 failures += 1
                 print(f"  FAIL {path.name}\n{error}")

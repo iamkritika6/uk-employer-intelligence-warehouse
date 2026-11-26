@@ -142,15 +142,24 @@ Useful flags: `--skip-raw` skips reloading the source files, `--only staging`
 runs a single layer.
 
 **Expect the full run to take around 30 minutes**, dominated by the fuzzy
-matching pass. Measured on the machine this was built on:
+matching pass. Timings below are from an actual `--skip-raw` run, which
+completed in **26 minutes 6 seconds with 0 failures**:
 
 | Step | Time |
 |---|---|
-| Load 5.7m company rows | 2 min 37 s |
-| Build staging companies | 1 min 56 s |
-| Trigram index build | 23 s |
-| Fuzzy matching pass | 18 min 31 s |
-| Build fact table | 1 min 14 s |
+| Build staging companies, incl. both indexes | 3 min 26 s |
+| Exact matching | 3.4 s |
+| Fuzzy matching pass | 20 min 27 s |
+| Build the four mart tables | 1 min 43 s |
+| SCD2 history | 0.6 s |
+| Quality checks | 12.8 s |
+
+Add roughly 3 minutes for the raw load if not using `--skip-raw`: the 5.7
+million row `COPY` takes 2 min 37 s.
+
+The fuzzy pass varies with cache state — the same step took 18 min 31 s on a
+run where the table and index were already warm in memory, against 20 min 27 s
+after a rebuild from cold.
 
 Run the analysis queries individually:
 

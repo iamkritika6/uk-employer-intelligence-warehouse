@@ -35,7 +35,24 @@
 -- is what would turn it into real change tracking. No history has been
 -- invented to make the output look fuller.
 
-CREATE TABLE IF NOT EXISTS marts.employer_history (
+-- Rebuilt from scratch on every run, deliberately.
+--
+-- The dimensions use GENERATED ALWAYS AS IDENTITY and are dropped and
+-- recreated by the marts layer, so employer_key and location_key are reissued
+-- on every full rebuild. History rows holding old key values would then point
+-- at the wrong employers - silently, because the foreign keys would still
+-- resolve.
+--
+-- Rebuilding is safe because nothing is lost: the fact table holds every
+-- snapshot that has been loaded, and the pipeline replays them in publication
+-- order, so the history is reconstructed identically.
+--
+-- The first version of this file used CREATE TABLE IF NOT EXISTS and survived
+-- a full rebuild only by luck - the identity sequences happened to reissue the
+-- same numbers because the inserts are deterministically ordered.
+DROP TABLE IF EXISTS marts.employer_history CASCADE;
+
+CREATE TABLE marts.employer_history (
     employer_history_key bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     employer_key  integer NOT NULL REFERENCES marts.dim_employer (employer_key),
     route         text    NOT NULL,
